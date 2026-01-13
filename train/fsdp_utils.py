@@ -36,7 +36,7 @@ class FSDPConfig:
         backward_prefetch, 
         cpu_offload, 
         num_replicate,
-        num_shard=8,
+        num_shard=2,
     ):
         self.sharding_strategy = sharding_strategy
         self.backward_prefetch = backward_prefetch
@@ -100,15 +100,18 @@ class FSDPCheckpoint:
         os.makedirs(save_path, exist_ok=True)
         logger.info(f"Saving checkpoint to {save_path}.")
 
-        if ema_model is not None:
-            with FSDP.state_dict_type(
-                ema_model,
-                StateDictType.FULL_STATE_DICT,
-                FullStateDictConfig(rank0_only=True, offload_to_cpu=True),
-            ):
-                ema_state_dict = ema_model.state_dict()
-                if dist.get_rank() == 0:
-                    save_file(ema_state_dict, os.path.join(save_path, "ema.safetensors"))
+        # --- 修改说明: 已移除 EMA 模型的保存逻辑，以避免 FSDP gather 时的 CUDA 报错 ---
+        # 如果未来需要保存 EMA，请确保 FSDP 版本兼容或 EMA 参数正确处理了 requires_grad 和 offload
+        # if ema_model is not None:
+        #     with FSDP.state_dict_type(
+        #         ema_model,
+        #         StateDictType.FULL_STATE_DICT,
+        #         FullStateDictConfig(rank0_only=True, offload_to_cpu=True),
+        #     ):
+        #         ema_state_dict = ema_model.state_dict()
+        #         if dist.get_rank() == 0:
+        #             save_file(ema_state_dict, os.path.join(save_path, "ema.safetensors"))
+        # -----------------------------------------------------------------------
 
         with FSDP.state_dict_type(
             model,
@@ -160,28 +163,32 @@ class FSDPCheckpoint:
             model_state_dict = load_file(model_state_dict_path, device="cpu")
             # NOTE position embeds are fixed sinusoidal embeddings, so we can just pop it off,
             # which makes it easier to adapt to different resolutions.
-            model_state_dict.pop('latent_pos_embed.pos_embed')
-            model_state_dict.pop('vit_pos_embed.pos_embed')
+            msg = (model_state_dict.keys().__contains__('latent_pos_embed.pos_embed'))
+            logger.info(f"latent_pos_embed.pos_embed in state_dict: {msg}")
+            # model_state_dict.pop('latent_pos_embed.pos_embed')
+            # model_state_dict.pop('vit_pos_embed.pos_embed')
             msg = model.load_state_dict(model_state_dict, strict=False)
             logger.info(msg)
             del model_state_dict
 
-            if ema_model is not None:
-                ema_state_dict_path = os.path.join(resume_from, f"ema.safetensors")
-                if not os.path.exists(ema_state_dict_path):
-                    logger.info(f"replicaing ema model from {model_state_dict_path}.")
-                    ema_state_dict_path = model_state_dict_path
-                ema_state_dict = load_file(ema_state_dict_path, device="cpu")
-                # NOTE position embeds are fixed sinusoidal embeddings, so we can just pop it off,
-                # which makes it easier to adapt to different resolutions.
-                ema_state_dict.pop('latent_pos_embed.pos_embed')
-                ema_state_dict.pop('vit_pos_embed.pos_embed')
-                msg = ema_model.load_state_dict(ema_state_dict, strict=False)
-                logger.info(msg)
-                del ema_state_dict
+            # if ema_model is not None:
+            #     ema_state_dict_path = os.path.join(resume_from, f"ema.safetensors")
+            #     if not os.path.exists(ema_state_dict_path):
+            #         logger.info(f"replicaing ema model from {model_state_dict_path}.")
+            #         ema_state_dict_path = model_state_dict_path
+            #     ema_state_dict = load_file(ema_state_dict_path, device="cpu")
+            #     # NOTE position embeds are fixed sinusoidal embeddings, so we can just pop it off,
+            #     # which makes it easier to adapt to different resolutions.
+            #     ema_state_dict.pop('latent_pos_embed.pos_embed')
+            #     ema_state_dict.pop('vit_pos_embed.pos_embed')
+            #     msg = ema_model.load_state_dict(ema_state_dict, strict=False)
+            #     logger.info(msg)
+            #     del ema_state_dict
         else:
             logger.info(f"Training from scratch.")
-        return model, ema_model
+        return model, None
+    
+    
 
     @staticmethod
     def try_load_train_state(resume_from, optimizer, scheduler, fsdp_config):

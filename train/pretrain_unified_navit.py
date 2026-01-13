@@ -1,6 +1,7 @@
 # Copyright 2025 Bytedance Ltd. and/or its affiliates.
 # SPDX-License-Identifier: Apache-2.0
-
+import os
+import sys
 import functools
 import gc
 import os
@@ -24,6 +25,10 @@ from transformers.optimization import (
     get_constant_schedule_with_warmup,
     get_cosine_with_min_lr_schedule_with_warmup,
 )
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 from data.dataset_base import DataConfig, PackedDataset, collate_wrapper
 from data.data_utils import add_special_tokens
@@ -167,7 +172,7 @@ class ModelArguments:
         metadata={"help": "Probability of dropping VAE latent inputs during training."}
     )
     vit_cond_dropout_prob: float = field(
-        default=0.3,
+        default=0.0,
         metadata={"help": "Probability of dropping ViT visual features during training."}
     )
 
@@ -183,7 +188,7 @@ class DataArguments:
         metadata={"help": "How many batches each DataLoader worker pre-loads in advance."}
     )
     num_workers: int = field(
-        default=4,
+        default=0,
         metadata={"help": "Number of background workers for the PyTorch DataLoader."}
     )
     max_num_tokens_per_sample: int = field(
@@ -216,7 +221,7 @@ class TrainingArguments:
         metadata={"help": "Train image generation branch."}
     )
     visual_und: bool = field(
-        default=True,
+        default=False,
         metadata={"help": "Train image understanding branch."}
     )
 
@@ -238,7 +243,7 @@ class TrainingArguments:
         metadata={"help": "Name shown in the Weights & Biases UI for this run."}
     )
     wandb_runid: str = field(
-        default="0",
+        default="yjfyjf_train_save_300_try13_init",
         metadata={"help": "Unique identifier to resume a previous W&B run, if desired."}
     )
     wandb_resume: str = field(
@@ -282,7 +287,7 @@ class TrainingArguments:
         metadata={"help": "Print / log every N training steps."}
     )
     save_every: int = field(
-        default=2000,
+        default=300,
         metadata={"help": "Save a checkpoint every N training steps."}
     )
     total_steps: int = field(
@@ -292,7 +297,7 @@ class TrainingArguments:
 
     # --- optimization & scheduler ---
     warmup_steps: int = field(
-        default=2000,
+        default=100,
         metadata={"help": "Linear warm-up steps before applying the main LR schedule."}
     )
     lr_scheduler: str = field(
@@ -362,7 +367,7 @@ class TrainingArguments:
         metadata={"help": "Number of model replicas per GPU rank for tensor parallelism."}
     )
     num_shard: int = field(
-        default=8,
+        default=2,
         metadata={"help": "Number of parameter shards when using FSDP HYBRID_SHARD."}
     )
     sharding_strategy: str = field(
@@ -374,7 +379,7 @@ class TrainingArguments:
         metadata={"help": "FSDP backward prefetch strategy (BACKWARD_PRE or NO_PREFETCH)."}
     )
     cpu_offload: bool = field(
-        default=False,
+        default=True,
         metadata={"help": "Enable FSDP parameter offload to CPU."}
     )
 
@@ -430,9 +435,9 @@ def main():
             mode="offline" if training_args.wandb_offline else "online",
             settings=wandb.Settings(init_timeout=120)
         )
-        wandb.config.update(training_args)
-        wandb.config.update(model_args)
-        wandb.config.update(data_args)
+        wandb.config.update(training_args, allow_val_change=True)
+        wandb.config.update(model_args, allow_val_change=True)
+        wandb.config.update(data_args, allow_val_change=True)
         if training_args.peak_device_tflops > 0:
             logger.info(f"Using peak_device_tflops={training_args.peak_device_tflops:.2f} TFLOPs (per GPU).")
         else:
@@ -559,11 +564,12 @@ def main():
         num_shard=training_args.num_shard,
     )
     ema_model = deepcopy(model)
-    model, ema_model = FSDPCheckpoint.try_load_ckpt(
-        resume_from, logger, model, ema_model, resume_from_ema=finetune_from_ema
-    )
-    ema_model = fsdp_ema_setup(ema_model, fsdp_config)
     fsdp_model = fsdp_wrapper(model, fsdp_config)
+    ema_model = fsdp_wrapper(ema_model, fsdp_config)      
+
+    fsdp_model, ema_model = FSDPCheckpoint.try_load_ckpt(
+        resume_from, logger, fsdp_model, ema_model, resume_from_ema=finetune_from_ema
+    )
     apply_activation_checkpointing(
         fsdp_model, 
         checkpoint_wrapper_fn=functools.partial(
@@ -641,7 +647,7 @@ def main():
     train_dataset.set_epoch(data_args.data_seed)
     train_loader = DataLoader(
         train_dataset,
-        batch_size=1, # batch size is 1 packed dataset
+        batch_size=16, # batch size is 1 packed dataset
         num_workers=data_args.num_workers,
         pin_memory=True,
         collate_fn=collate_wrapper(),
@@ -653,7 +659,7 @@ def main():
     if training_args.visual_gen:
         vae_model.to(device).eval()
     fsdp_model.train()
-    ema_model.eval()
+    # ema_model.eval()
 
     # train loop
     start_time = time()
@@ -730,7 +736,7 @@ def main():
             total_norm = fsdp_model.clip_grad_norm_(training_args.max_grad_norm)
             optimizer.step()
             scheduler.step()
-            fsdp_ema_update(ema_model, fsdp_model, decay=training_args.ema)
+            # fsdp_ema_update(ema_model, fsdp_model, decay=training_args.ema)
             optimizer.zero_grad()
         
         # Log loss values:
@@ -811,7 +817,7 @@ def main():
                 ckpt_dir=training_args.checkpoint_dir, 
                 train_steps=curr_step, 
                 model=fsdp_model, 
-                ema_model=ema_model, 
+                ema_model=None, 
                 optimizer=optimizer, 
                 scheduler=scheduler, 
                 logger=logger,
@@ -853,7 +859,7 @@ def main():
             ckpt_dir=training_args.checkpoint_dir, 
             train_steps=curr_step, 
             model=fsdp_model, 
-            ema_model=ema_model, 
+            ema_model=None, 
             optimizer=optimizer, 
             scheduler=scheduler, 
             logger=logger,

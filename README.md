@@ -57,7 +57,7 @@ snapshot_download(cache_dir=cache_dir,
 3️⃣ Data Preparation \
 Download full filtered data mentioned above, then run 
 ```bash
-python yjf_dataset.py
+python dataset.py
 ```
 
 ## 🔥 Train & Inference

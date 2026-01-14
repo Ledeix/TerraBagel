@@ -1,45 +1,45 @@
 {
-  "/data01/yjf/Bagel/yjf_bagel_data/editing_parquets/parquet/part-00000.parquet": {
+  "Path_to_TerraBagel/terra_data/editing_parquets/parquet/part-00000.parquet": {
     "num_row_groups": 1,
     "num_rows": 2000
   },
-  "/data01/yjf/Bagel/yjf_bagel_data/editing_parquets/parquet/part-00001.parquet": {
+  "Path_to_TerraBagel/terra_data/editing_parquets/parquet/part-00001.parquet": {
     "num_row_groups": 1,
     "num_rows": 2000
   },
-  "/data01/yjf/Bagel/yjf_bagel_data/editing_parquets/parquet/part-00002.parquet": {
+  "Path_to_TerraBagel/terra_data/editing_parquets/parquet/part-00002.parquet": {
     "num_row_groups": 1,
     "num_rows": 1000
   },
-  "/data01/yjf/Bagel/yjf_bagel_data/editing_parquets/parquet/part-00003.parquet": {
+  "Path_to_TerraBagel/terra_data/editing_parquets/parquet/part-00003.parquet": {
     "num_row_groups": 1,
     "num_rows": 2000
   },
-  "/data01/yjf/Bagel/yjf_bagel_data/editing_parquets/parquet/part-00004.parquet": {
+  "Path_to_TerraBagel/terra_data/editing_parquets/parquet/part-00004.parquet": {
     "num_row_groups": 1,
     "num_rows": 2000
   },
-  "/data01/yjf/Bagel/yjf_bagel_data/editing_parquets/parquet/part-00005.parquet": {
+  "Path_to_TerraBagel/terra_data/editing_parquets/parquet/part-00005.parquet": {
     "num_row_groups": 1,
     "num_rows": 2000
   },
-  "/data01/yjf/Bagel/yjf_bagel_data/editing_parquets/parquet/part-00006.parquet": {
+  "Path_to_TerraBagel/terra_data/editing_parquets/parquet/part-00006.parquet": {
     "num_row_groups": 1,
     "num_rows": 2000
   },
-  "/data01/yjf/Bagel/yjf_bagel_data/editing_parquets/parquet/part-00007.parquet": {
+  "Path_to_TerraBagel/terra_data/editing_parquets/parquet/part-00007.parquet": {
     "num_row_groups": 1,
     "num_rows": 2000
   },
-  "/data01/yjf/Bagel/yjf_bagel_data/editing_parquets/parquet/part-00008.parquet": {
+  "Path_to_TerraBagel/terra_data/editing_parquets/parquet/part-00008.parquet": {
     "num_row_groups": 1,
     "num_rows": 2000
   },
-  "/data01/yjf/Bagel/yjf_bagel_data/editing_parquets/parquet/part-00009.parquet": {
+  "Path_to_TerraBagel/terra_data/editing_parquets/parquet/part-00009.parquet": {
     "num_row_groups": 1,
     "num_rows": 2000
   },
-  "/data01/yjf/Bagel/yjf_bagel_data/editing_parquets/parquet/part-00010.parquet": {
+  "Path_to_TerraBagel/terra_data/editing_parquets/parquet/part-00010.parquet": {
     "num_row_groups": 1,
     "num_rows": 2000
   }

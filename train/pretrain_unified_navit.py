@@ -563,9 +563,9 @@ def main():
         num_replicate=training_args.num_replicate,
         num_shard=training_args.num_shard,
     )
-    ema_model = deepcopy(model)
+    # ema_model = deepcopy(model)
     fsdp_model = fsdp_wrapper(model, fsdp_config)
-    ema_model = fsdp_wrapper(ema_model, fsdp_config)      
+    # ema_model = fsdp_wrapper(ema_model, fsdp_config)      
 
     fsdp_model, ema_model = FSDPCheckpoint.try_load_ckpt(
         resume_from, logger, fsdp_model, ema_model, resume_from_ema=finetune_from_ema

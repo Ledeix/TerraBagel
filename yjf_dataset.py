@@ -14,13 +14,13 @@ from PIL import Image
 # =========================
 # 配置
 # =========================
-BASE_OUTPUT_DIR = "/data01/yjf/Bagel/yjf_bagel_data"
+BASE_OUTPUT_DIR = "Path_to_TerraBagel/terra_data"
 PARQUET_ROOT = os.path.join(BASE_OUTPUT_DIR, "editing_parquets", "parquet")
 
 DATASETS = {
-    "light": "/data01/yjf/yjf_image/top5000_image_pairs_light.parquet",
-    "scene": "/data01/yjf/yjf_image/top8000_image_pairs_scene.parquet",
-    "weather": "/data01/yjf/yjf_image/top8000_image_pairs_weather.parquet",
+    "light": "terra_data/top5000_image_pairs_light.parquet",
+    "scene": "terra_data/top8000_image_pairs_scene.parquet",
+    "weather": "terra_data/top8000_image_pairs_weather.parquet",
 }
 
 SHARD_SIZE = 2000

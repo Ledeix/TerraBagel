@@ -19,8 +19,8 @@ from huggingface_hub import HfApi, upload_folder
 
 # ================== 用户配置区 ==================
 
-LOCAL_MODEL_DIR = "/data01/yjf/Bagel/results/checkpoints/0001200"
-HF_REPO_ID = "Gokottaw434/TerraBagel_1200"
+LOCAL_MODEL_DIR = "Path_to_TerraBagel/results/checkpoints/0001200"
+HF_REPO_ID = "HF_USERNAME/TerraBagel_1200"
 HF_TOKEN = os.environ["HF_TOKEN"]
 
 # 是否设为私有仓库（仅在仓库不存在时生效）

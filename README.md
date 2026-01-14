@@ -11,7 +11,7 @@ We present TERRA_BAGEL, an open‑source multimodal model with 7B active paramet
 </p>
 
 ## 🔥 Quick Start
-1️⃣  Set up environment
+1️⃣  Set up environment \\
 With requiremets2.txt:
 ```bash
 git clone https://github.com/Ledeix/TerraBagel.git
@@ -54,7 +54,7 @@ snapshot_download(cache_dir=cache_dir,
 )
 ```
 
-3️⃣ Data Preparation
+3️⃣ Data Preparation \\
 Download full filtered data mentioned above, then run 
 ```bash
 python yjf_dataset.py

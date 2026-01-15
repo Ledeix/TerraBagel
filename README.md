@@ -59,6 +59,25 @@ Download full filtered data mentioned above, then run
 ```bash
 python dataset.py
 ```
+For more detailed raw data generation, see [data_generation](./data_generation/)
+
+4️⃣ Download finetuned checkpoint of TerraBagel
+```python
+from huggingface_hub import snapshot_download
+
+save_dir = "checkpoints/0004200"
+repo_id = "ledeix/TerraBagel_4200"
+cache_dir = save_dir + "/cache"
+
+snapshot_download(cache_dir=cache_dir,
+  local_dir=save_dir,
+  repo_id=repo_id,
+  local_dir_use_symlinks=False,
+  resume_download=True,
+  allow_patterns=["*.json", "*.safetensors", "*.bin", "*.py", "*.md", "*.txt"],
+)
+```
+Or, you can visit the repository on [HuggingFace](https://huggingface.co/ledeix/TerraBagel_4200).
 
 ## 🔥 Train & Inference
 ### Train 
@@ -68,3 +87,5 @@ torchrun   --nnodes=1   --node_rank=0   --nproc_per_node=2   --master_addr=127.0
 
 ### Inference
 See [inference.ipynb](./inference.ipynb)
+Results of [TerraBagel](./TerraBagel_inference.ipynb)
+Results of [Bagel](./Bagel_inference.ipynb)

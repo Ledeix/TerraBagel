@@ -65,7 +65,7 @@ For more detailed raw data generation, see [data_generation](./data_generation/)
 ```python
 from huggingface_hub import snapshot_download
 
-save_dir = "checkpoints/0004200"
+save_dir = "results/checkpoints/0004200"
 repo_id = "ledeix/TerraBagel_4200"
 cache_dir = save_dir + "/cache"
 

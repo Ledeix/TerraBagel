@@ -86,6 +86,6 @@ torchrun   --nnodes=1   --node_rank=0   --nproc_per_node=2   --master_addr=127.0
 ```
 
 ### Inference
-See [inference.ipynb](./inference.ipynb)
-Results of [TerraBagel](./TerraBagel_inference.ipynb)
-Results of [Bagel](./Bagel_inference.ipynb)
+See [inference.ipynb](./inference.ipynb) \
+Results of [TerraBagel](./TerraBagel_inference.ipynb) \
+Results of [Bagel](./Bagel_inference.ipynb) \
